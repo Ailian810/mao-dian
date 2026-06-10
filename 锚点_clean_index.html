@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="锚点">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0ZGQjM0NyIvPjxwYXRoIGQ9Ik01MCAxNUw2MCA0MEg4NUw2NSA1NUw3NSA4MEw1MCA2NUwyNSA4MEwzNSA1NUwxNSA0MEg0MEw1MCAxNVoiIGZpbGw9IiNGRkYiLz48L3N2Zz4=">
+    <title>锚点 - 微光储蓄</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --primary-orange: #FFB347; --primary-pink: #FF6B6B; --primary-blue: #4DACF0; --primary-green: #6BCB77;
+            --glass-bg-light: rgba(255, 255, 255, 0.6); --glass-bg-dark: rgba(44, 34, 28, 0.6); 
+            --bg-color-light: #FFFBF5; --bg-color-dark: #1F1915; 
+            --text-main-light: #4A3A31; --text-main-dark: #FDF5E6;
+            --text-sec-light: #9B8C82; --text-sec-dark: #B8A89A;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+            margin: 0; padding: 0; transition: background-color 0.5s, color 0.5s;
+            display: flex; justify-content: center; height: 100vh; height: 100dvh; overflow: hidden;
+            -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+        }
+
+        #app-container { width: 100%; max-width: 430px; height: 100%; display: flex; flex-direction: column; position: relative; }
+
+        @media (prefers-color-scheme: light) {
+            body { background: var(--bg-color-light); }
+            #app-container { background: linear-gradient(135deg, #FFF6E5 0%, #FFFBF5 100%); color: var(--text-main-light); }
+            .glass { background: var(--glass-bg-light); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 8px 32px rgba(220, 190, 150, 0.2); }
+            .glass-heavy { background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 4px 16px rgba(220, 190, 150, 0.15); }
+            .text-secondary { color: var(--text-sec-light); }
+            .input-box { background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(220, 190, 150, 0.4); color: var(--text-main-light); }
+            .input-box:focus { border-color: #FFCA28; }
+            .blob-1 { background: radial-gradient(circle, rgba(255,202,40,0.15) 0%, rgba(255,202,40,0) 70%); }
+            .blob-2 { background: radial-gradient(circle, rgba(255,183,77,0.12) 0%, rgba(255,183,77,0) 70%); }
+            .blob-3 { background: radial-gradient(circle, rgba(255,107,107,0.08) 0%, rgba(255,107,107,0) 70%); }
+            .calendar-day.has-entry { background: rgba(255, 179, 71, 0.2); font-weight: 700; color: #D88315; border: 1px solid rgba(255, 179, 71, 0.4);}
+            .calendar-day.selected { background: #FFB347; color: white; border: none; box-shadow: 0 2px 8px rgba(255, 179, 71, 0.4); }
+            .modal-overlay { background: rgba(255, 251, 245, 0.8); }
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            body { background: var(--bg-color-dark); }
+            #app-container { background: linear-gradient(135deg, #1F1915 0%, #120D0A 100%); color: var(--text-main-dark); }
+            .glass { background: var(--glass-bg-dark); border: 1px solid rgba(255, 214, 170, 0.05); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); }
+            .glass-heavy { background: rgba(44, 34, 28, 0.85); border: 1px solid rgba(255, 214, 170, 0.08); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
+            .text-secondary { color: var(--text-sec-dark); }
+            .input-box { background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 214, 170, 0.15); color: var(--text-main-dark); }
+            .input-box:focus { border-color: #FFCA28; }
+            .blob-1 { background: radial-gradient(circle, rgba(255,202,40,0.15) 0%, rgba(255,202,40,0) 70%); }
+            .blob-2 { background: radial-gradient(circle, rgba(255,183,77,0.1) 0%, rgba(255,183,77,0) 70%); }
+            .blob-3 { background: radial-gradient(circle, rgba(255,107,107,0.1) 0%, rgba(255,107,107,0) 70%); }
+            .calendar-day.has-entry { background: rgba(255, 179, 71, 0.15); font-weight: 700; color: #FFCA28; border: 1px solid rgba(255, 179, 71, 0.3);}
+            .calendar-day.selected { background: #FFB347; color: #1F1915; border: none; box-shadow: 0 2px 8px rgba(255, 179, 71, 0.3); }
+            .modal-overlay { background: rgba(31, 25, 21, 0.85); }
+        }
+
+        .ambient-blobs { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(45px); }
+        .blob-1 { width: 320px; height: 320px; top: -60px; right: -60px; }
+        .blob-2 { width: 280px; height: 280px; bottom: 80px; left: -60px; }
+        .blob-3 { width: 220px; height: 220px; top: 40%; right: -30px; }
+
+        .glass { backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+        .glass-heavy { backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); }
+        
+        .header { padding: 20px 24px; font-weight: 700; font-size: 1.2rem; z-index: 10; padding-top: max(20px, env(safe-area-inset-top)); background: transparent; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; transition: opacity 0.3s; }
+        .content { flex: 1; overflow-y: auto; padding: 0 20px 20px 20px; padding-bottom: 110px; z-index: 1; scroll-behavior: smooth; }
+
+        .tab-bar { position: absolute; bottom: 20px; left: 20px; right: 20px; border-radius: 24px; display: flex; justify-content: space-around; padding: 12px 10px; z-index: 10; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+        .tab-item { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; font-weight: 600; cursor: pointer; opacity: 0.5; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 30%; transform: scale(0.95); }
+        .tab-item.active { opacity: 1; color: #FFB347; transform: scale(1); }
+        .tab-icon { font-size: 1.5rem; margin-bottom: 4px; transition: transform 0.3s; }
+        .tab-item.active .tab-icon { transform: translateY(-2px); text-shadow: 0 4px 12px rgba(255, 179, 71, 0.4); }
+
+        .card { border-radius: 24px; padding: 24px; margin-bottom: 20px; position: relative;}
+        h2 { margin-top: 0; font-size: 1.25rem; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.3px; }
+        p { margin-top: 0; line-height: 1.6; font-size: 0.95rem; }
+
+        .quote-wrapper { margin-bottom: 16px; padding: 14px 16px; display: flex; flex-direction: column; border-radius: 16px; background: rgba(255, 179, 71, 0.1); border-left: 4px solid var(--primary-orange); cursor: pointer; transition: background 0.2s; }
+        .quote-wrapper:active { background: rgba(255, 179, 71, 0.2); }
+        .quote-text { font-size: 0.9rem; line-height: 1.5; font-weight: 500; color: var(--text-main-light); transition: opacity 0.3s ease; }
+        .quote-hint { font-size: 0.7rem; opacity: 0.5; text-align: right; margin-top: 6px; font-weight: 600;}
+        @media (prefers-color-scheme: dark) { .quote-text { color: var(--text-main-dark); } }
+
+        /* SAFE PURE SVG SYMBOLS: 3D Clover Coin */
+        .icon-clover-coin { width: 1.2em; height: 1.2em; vertical-align: -0.25em; display: inline-block; filter: drop-shadow(0 2px 4px rgba(230, 160, 40, 0.35)); }
+        .tab-icon .icon-clover-coin { width: 28px; height: 28px; vertical-align: top; filter: drop-shadow(0 2px 4px rgba(230, 160, 40, 0.3));}
+        .btn .icon-clover-coin { width: 1.4em; height: 1.4em; margin-left: 6px; }
+        .entry-icon .icon-clover-coin { width: 1.8em; height: 1.8em; }
+
+        /* Jar and Animations */
+        .jar-container { display: flex; justify-content: center; align-items: center; margin: 10px 0 24px 0; position: relative; }
+        .jar-wrapper { position: relative; transform-origin: bottom center; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .jar-wrapper.bounce { animation: jarBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes jarBounce { 0% { transform: scale(1); } 20% { transform: scale(1.15, 0.85); } 40% { transform: scale(0.9, 1.1); } 60% { transform: scale(1.05, 0.95); } 80% { transform: scale(0.98, 1.02); } 100% { transform: scale(1); } }
+        .jar-svg { width: 120px; height: 120px; filter: drop-shadow(0 10px 15px rgba(255, 179, 71, 0.2)); animation: float 6s ease-in-out infinite; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+
+        .category-selector { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; margin-bottom: 20px; }
+        .chip { padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; background: rgba(220, 190, 150, 0.15); color: inherit; opacity: 0.7; transition: all 0.3s; display: flex; align-items: center; gap: 6px; }
+        .chip.active { opacity: 1; transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.06); background: var(--chip-bg, rgba(255, 179, 71, 0.15)); color: var(--chip-color, var(--primary-orange)); }
+        .chip[data-cat="self"].active { background: rgba(255, 107, 107, 0.15); color: var(--primary-pink); }
+
+        .btn { background: linear-gradient(135deg, #FFCA28 0%, #FFB347 100%); color: #6D4C10; border: none; padding: 16px 20px; border-radius: 18px; font-size: 1.05rem; width: 100%; cursor: pointer; font-weight: 700; box-shadow: 0 8px 20px rgba(255, 179, 71, 0.3); transition: all 0.2s ease; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 4px; text-shadow: 0 1px 1px rgba(255,255,255,0.4); user-select: none;}
+        .btn:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(255, 179, 71, 0.2); }
+        .btn.animating { pointer-events: none; opacity: 0.9; }
+        .btn-selfcare { background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%); color: white; text-shadow: none; box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3); }
+
+        .input-box { width: 100%; padding: 16px; border-radius: 16px; box-sizing: border-box; margin-top: 12px; font-family: inherit; font-size: 1rem; resize: none; outline: none; transition: border-color 0.3s; line-height: 1.5; }
+        textarea.input-box { height: 110px; }
+        ::-webkit-input-placeholder { color: var(--text-sec-light); font-weight: 400; opacity: 0.6; }
+        
+        .screen { display: none; opacity: 0; transition: opacity 0.4s ease; }
+        .screen.active { display: block; opacity: 1; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .particle { position: absolute; pointer-events: none; z-index: 999; }
+        .flying-item { position: absolute; z-index: 1000; pointer-events: none; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+        .flying-item .icon-clover-coin { width: 55px; height: 55px; filter: drop-shadow(0 15px 25px rgba(230, 160, 40, 0.6)); }
+
+        /* Archive */
+        .summary-card { display: flex; justify-content: space-between; align-items: center; padding: 20px; margin-bottom: 24px; border-radius: 24px; }
+        .summary-stat { text-align: center; }
+        .summary-num { font-size: 2rem; font-weight: 800; color: #FFB347; line-height: 1.2; font-variant-numeric: tabular-nums;}
+        .summary-label { font-size: 0.8rem; font-weight: 600; opacity: 0.7; margin-top: 4px; }
+        .summary-divider { width: 1px; height: 40px; background: rgba(220, 190, 150, 0.3); }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding: 0 10px; }
+        .calendar-title { font-weight: 700; font-size: 1.1rem; }
+        .calendar-nav { display: flex; gap: 10px; }
+        .cal-btn { background: rgba(220, 190, 150, 0.2); border: none; width: 32px; height: 32px; border-radius: 12px; cursor: pointer; color: inherit; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; transition: background 0.2s; }
+        .cal-btn:active { background: rgba(220, 190, 150, 0.4); }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+        .calendar-weekday { font-size: 0.75rem; font-weight: 600; opacity: 0.5; padding-bottom: 8px; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; position: relative; }
+        .calendar-day.empty { opacity: 0; pointer-events: none; }
+        .calendar-day:active:not(.empty) { transform: scale(0.9); }
+        .date-divider { font-weight: 700; font-size: 1.05rem; margin: 30px 0 16px 4px; display: flex; align-items: center; gap: 10px; }
+        .date-divider::after { content: ''; flex: 1; height: 1px; background: rgba(220, 190, 150, 0.3); }
+        
+        .entry-item { padding: 18px; border-radius: 20px; margin-bottom: 14px; font-size: 0.95rem; line-height: 1.5; display: flex; flex-direction: column; background: var(--glass-bg-light); border: 1px solid rgba(255,255,255,0.6); box-shadow: 0 4px 12px rgba(220, 190, 150, 0.1); transition: transform 0.2s; position: relative;}
+        @media (prefers-color-scheme: dark) { .entry-item { background: rgba(44, 34, 28, 0.4); border: 1px solid rgba(255,214,170,0.05); box-shadow: none; } }
+        
+        .entry-main { display: flex; gap: 14px; width: 100%; }
+        .entry-icon { font-size: 1.5rem; flex-shrink: 0; display: flex; align-items: flex-start; margin-top: 2px;}
+        .entry-content { flex: 1; }
+        .entry-meta { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.75rem; opacity: 0.6; font-weight: 500;}
+        .entry-cat { display: flex; align-items: center; gap: 4px; }
+        
+        .entry-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+        .btn-small { font-size: 0.8rem; padding: 6px 14px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; transition: opacity 0.2s, background 0.2s; position: relative; z-index: 10;}
+        .btn-edit { color: var(--primary-blue); background: rgba(77, 172, 240, 0.1); }
+        .btn-edit:active { background: rgba(77, 172, 240, 0.2); }
+        .btn-delete { color: var(--primary-pink); background: rgba(255, 107, 107, 0.1); }
+        .btn-delete:active { background: rgba(255, 107, 107, 0.2); }
+        
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-work { background: var(--primary-blue); box-shadow: 0 0 8px rgba(77, 172, 240, 0.5); }
+        .dot-people { background: var(--primary-green); box-shadow: 0 0 8px rgba(107, 203, 119, 0.5); }
+        .dot-life { background: var(--primary-orange); box-shadow: 0 0 8px rgba(255, 179, 71, 0.5); }
+        .dot-self { background: var(--primary-pink); box-shadow: 0 0 8px rgba(255, 107, 107, 0.5); }
+
+        .empty-state { text-align: center; padding: 40px 20px; font-size: 0.95rem; opacity: 0.5; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+        .empty-icon { font-size: 3rem; filter: grayscale(1) opacity(0.5); }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        
+        .modal-content {
+            width: 90%; max-width: 360px;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-actions { display: flex; gap: 12px; margin-top: 16px; }
+        .modal-actions .btn { padding: 12px; font-size: 1rem; border-radius: 14px; }
+        .btn-cancel { background: rgba(220, 190, 150, 0.3); color: inherit; box-shadow: none; text-shadow: none;}
+
+        /* =========================================
+           ✨ 新增：专业呼吸引导器 (Breathing Guide)
+           ========================================= */
+        .breathe-widget {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 24px 0; position: relative; margin-bottom: 16px;
+            background: rgba(255, 107, 107, 0.05); border-radius: 20px; border: 1px dashed rgba(255, 107, 107, 0.2);
+        }
+        
+        .breathe-controls { display: flex; gap: 8px; margin-bottom: 24px; width: 100%; justify-content: center; }
+        .breathe-method-btn {
+            font-size: 0.75rem; padding: 6px 12px; border-radius: 12px; border: 1px solid rgba(255, 107, 107, 0.3);
+            background: transparent; color: var(--text-main-light); font-weight: 600; cursor: pointer; transition: all 0.2s;
+        }
+        @media (prefers-color-scheme: dark) { .breathe-method-btn { color: var(--text-main-dark); } }
+        .breathe-method-btn.active { background: var(--primary-pink); color: white; border-color: var(--primary-pink); box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3); }
+
+        .breathe-circle-container { position: relative; width: 140px; height: 140px; display: flex; justify-content: center; align-items: center; }
+        .breathe-circle {
+            position: absolute; width: 100px; height: 100px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,107,107,0.8) 0%, rgba(255,107,107,0.2) 100%);
+            box-shadow: 0 0 30px rgba(255,107,107,0.3);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 1.1rem; text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            transition: transform linear; /* Managed by JS for exact timings */
+        }
+        
+        .breathe-start-btn {
+            margin-top: 24px; background: rgba(255, 107, 107, 0.15); color: var(--primary-pink);
+            box-shadow: none; font-size: 0.9rem; padding: 10px 24px;
+        }
+        .breathe-start-btn:active { background: rgba(255, 107, 107, 0.25); }
+        .breathe-desc { font-size: 0.75rem; opacity: 0.6; text-align: center; margin-top: 10px; max-width: 85%; }
+    </style>
+</head>
+<body>
+
+<svg style="display: none;">
+    <symbol id="icon-star" viewBox="0 0 24 24"><path d="M12 2L14.4 9.6H22L15.8 14.1L18.2 21.7L12 17.2L5.8 21.7L8.2 14.1L2 9.6H9.6L12 2Z" fill="currentColor"/></symbol>
+    
+    <symbol id="icon-clover-coin" viewBox="0 0 100 100">
+        <circle cx="50" cy="53" r="46" fill="#D18317" />
+        <circle cx="50" cy="51" r="46" fill="#FDB933" />
+        <circle cx="50" cy="51" r="39" fill="none" stroke="#D18317" stroke-width="1.5" opacity="0.6"/>
+        <circle cx="50" cy="51" r="38" fill="none" stroke="#FFF59D" stroke-width="1.5" opacity="0.6"/>
+        <g fill="#FFE793" opacity="0.4">
+            <polygon points="50,51 46,12 54,12" /><polygon points="50,51 46,12 54,12" transform="rotate(30 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(60 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(90 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(120 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(150 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(180 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(210 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(240 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(270 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(300 50 51)" /><polygon points="50,51 46,12 54,12" transform="rotate(330 50 51)" />
+        </g>
+        <g fill="#B86F0E">
+            <circle cx="50" cy="11" r="3" /><circle cx="50" cy="11" r="3" transform="rotate(30 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(60 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(90 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(120 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(150 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(180 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(210 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(240 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(270 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(300 50 51)"/><circle cx="50" cy="11" r="3" transform="rotate(330 50 51)"/>
+        </g>
+        <g fill="#FFE793">
+            <circle cx="50" cy="9" r="2.5" /><circle cx="50" cy="9" r="2.5" transform="rotate(30 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(60 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(90 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(120 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(150 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(180 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(210 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(240 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(270 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(300 50 51)"/><circle cx="50" cy="9" r="2.5" transform="rotate(330 50 51)"/>
+        </g>
+        <g fill="#B86F0E" transform="translate(0, 3)">
+            <path d="M 50 51 C 35 41, 35 16, 50 16 C 65 16, 65 41, 50 51" /><path d="M 50 51 C 60 36, 85 36, 85 51 C 85 66, 60 66, 50 51" />
+            <path d="M 50 51 C 65 61, 65 86, 50 86 C 35 86, 35 61, 50 51" /><path d="M 50 51 C 40 66, 15 66, 15 51 C 15 36, 40 36, 50 51" />
+        </g>
+        <g fill="#FFE793">
+            <path d="M 50 51 C 35 41, 35 16, 50 16 C 65 16, 65 41, 50 51" /><path d="M 50 51 C 60 36, 85 36, 85 51 C 85 66, 60 66, 50 51" />
+            <path d="M 50 51 C 65 61, 65 86, 50 86 C 35 86, 35 61, 50 51" /><path d="M 50 51 C 40 66, 15 66, 15 51 C 15 36, 40 36, 50 51" />
+        </g>
+        <path d="M 50 21 L 50 81 M 21 51 L 81 51" stroke="#D18317" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    </symbol>
+</svg>
+
+<div id="app-container">
+    <div class="ambient-blobs"><div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div></div>
+    
+    <div class="header" id="app-header">⚓ 锚点</div>
+
+    <div class="content" id="content-area">
+        
+        <!-- ======================= 模块1: 感恩时刻 ======================= -->
+        <div id="screen-gratitude" class="screen active">
+            <div class="jar-container" id="gratitude-jar-target">
+                <div class="jar-wrapper" id="gratitude-jar">
+                    <svg class="jar-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="100" cy="110" r="50" fill="#FFB347" opacity="0.12" filter="blur(15px)" />
+                        <!-- Back of jar -->
+                        <path d="M60,60 C60,60 40,80 40,120 C40,160 60,180 100,180 C140,180 160,160 160,120 C160,80 140,60 140,60 Z" fill="rgba(255,255,255,0.15)" stroke="none" />
+                        <g id="dynamic-jar-coins"></g>
+                        <!-- Lid -->
+                        <rect x="70" y="40" width="60" height="20" rx="8" fill="#FFB347" opacity="0.9" />
+                        <!-- Front of jar -->
+                        <path d="M60,60 C60,60 40,80 40,120 C40,160 60,180 100,180 C140,180 160,160 160,120 C160,80 140,60 140,60 Z" fill="rgba(255,255,255,0.05)" stroke="#FFCA28" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M55,90 C50,110 50,140 70,160" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" opacity="0.5" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="quote-wrapper" id="quote-wrap-gratitude" title="点击更换暗示语">
+                <div class="quote-text" id="quote-gratitude">💡 积极情绪产生拓宽行为 → 行为带来资源积累 → 资源提升未来的生存与幸福感。</div>
+                <div class="quote-hint">点击更换 ↻</div>
+            </div>
+            
+            <div class="card glass">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <h2 style="margin:0;">微光储蓄</h2>
+                    <button class="btn-small" style="background: transparent; color: var(--primary-orange); padding: 0; box-shadow: none;" id="btn-manage-cat">⚙️ 管理分类</button>
+                </div>
+                <p class="text-secondary">无论多小的一件事，写下来，它们就会变成你专属的四叶草金币。</p>
+                <textarea id="gratitude-input" class="input-box" placeholder="今天发生了什么不错的事..."></textarea>
+                <div class="category-selector" id="gratitude-categories"></div>
+                <button class="btn" id="btn-gratitude">存入一枚金币 <svg class="icon-clover-coin"><use href="#icon-clover-coin"></use></svg></button>
+            </div>
+        </div>
+
+        <!-- ======================= 模块2: 自我关怀 (带呼吸疗愈) ======================= -->
+        <div id="screen-selfcare" class="screen">
+            <div class="quote-wrapper" id="quote-wrap-selfcare" style="margin-top: 16px; border-left-color: var(--primary-pink); background: rgba(255, 107, 107, 0.1);" title="点击更换暗示语">
+                <div class="quote-text" id="quote-selfcare">💡 照顾自己不是自私。当你主动为自己“充电”时，你正在积蓄能够抵御职业倦怠、长久生存的能量。</div>
+                <div class="quote-hint">点击更换 ↻</div>
+            </div>
+            
+            <!-- ✨ 新增的呼吸疗愈面板 -->
+            <div class="card glass breathe-widget">
+                <h2 style="color: var(--primary-pink); margin-bottom: 16px; text-align: center;">快速神经复位</h2>
+                
+                <div class="breathe-controls">
+                    <button class="breathe-method-btn active" data-method="sigh">生理性叹息<br><span style="font-size: 0.6rem; opacity: 0.8; font-weight: 400;">极速降压</span></button>
+                    <button class="breathe-method-btn" data-method="box">箱式呼吸<br><span style="font-size: 0.6rem; opacity: 0.8; font-weight: 400;">恢复专注</span></button>
+                    <button class="breathe-method-btn" data-method="478">4-7-8 法<br><span style="font-size: 0.6rem; opacity: 0.8; font-weight: 400;">深度镇静</span></button>
+                </div>
+
+                <div class="breathe-circle-container">
+                    <div class="breathe-circle" id="breathe-circle">准备</div>
+                </div>
+                
+                <div class="breathe-desc" id="breathe-desc">
+                    斯坦福神经科学推荐：深吸气 → 短促补充吸气撑开肺泡 → 长呼气，能瞬间切断焦虑反应。
+                </div>
+
+                <button class="btn btn-selfcare breathe-start-btn" id="btn-start-breathe">开始急救</button>
+            </div>
+
+            <div class="card glass" style="margin-top: 20px;">
+                <h2 style="color: var(--primary-pink);">自我充电记录</h2>
+                <p class="text-secondary">在忙碌的间隙，你有没有给自己留出哪怕五分钟的“待机时间”？喝杯热茶、发个呆，或者做一次深呼吸。</p>
+                <textarea id="selfcare-input" class="input-box" placeholder="我今天为自己做的一件小事是..."></textarea>
+                <div class="category-selector" id="selfcare-categories" style="display: none;"><div class="chip active" data-cat="self"><span>🔋</span> 充电</div></div>
+                <button class="btn btn-selfcare" id="btn-selfcare-submit">为自己充格电 🔋</button>
+            </div>
+        </div>
+
+        <!-- ======================= 模块3: 拾光手账 ======================= -->
+        <div id="screen-archive" class="screen">
+            <div class="quote-wrapper" id="quote-wrap-archive" style="margin-top: 16px; border-left-color: var(--primary-blue); background: rgba(77, 172, 240, 0.1);" title="点击更换暗示语">
+                <div class="quote-text" id="quote-archive">💡 积极情绪产生拓宽行为 → 行为带来资源积累。翻开这些锚点，它们都是属于你真实的心理资源。</div>
+                <div class="quote-hint">点击更换 ↻</div>
+            </div>
+            <div class="summary-card glass-heavy">
+                <div class="summary-stat"><div class="summary-num" id="total-coins">0</div><div class="summary-label">攒下锚点</div></div><div class="summary-divider"></div>
+                <div class="summary-stat"><div class="summary-num" id="total-charges" style="color: #FF6B6B;">0</div><div class="summary-label">自我充电</div></div><div class="summary-divider"></div>
+                <div class="summary-stat"><div class="summary-num" id="total-days">0</div><div class="summary-label">记录天数</div></div>
+            </div>
+            <div class="card glass">
+                <div class="calendar-header">
+                    <div class="calendar-title" id="cal-month-year">2023年10月</div>
+                    <div class="calendar-nav">
+                        <button class="cal-btn" id="btn-prev-month">‹</button>
+                        <button class="cal-btn" id="btn-next-month">›</button>
+                    </div>
+                </div>
+                <div class="calendar-grid"><div class="calendar-weekday">日</div><div class="calendar-weekday">一</div><div class="calendar-weekday">二</div><div class="calendar-weekday">三</div><div class="calendar-weekday">四</div><div class="calendar-weekday">五</div><div class="calendar-weekday">六</div></div>
+                <div class="calendar-grid" id="calendar-days"></div>
+            </div>
+            <div id="archive-list-content"></div>
+            <button class="btn" id="btn-show-all" style="background: rgba(220,190,150,0.2); color: inherit; box-shadow: none; margin-top: 20px; display: none;">查看全部记录</button>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="tab-bar glass">
+        <div class="tab-item active" id="tab-gratitude"><span class="tab-icon"><svg class="icon-clover-coin"><use href="#icon-clover-coin"></use></svg></span><span>储蓄</span></div>
+        <div class="tab-item" id="tab-selfcare"><span class="tab-icon">🔋</span><span>充电</span></div>
+        <div class="tab-item" id="tab-archive"><span class="tab-icon">📖</span><span>回顾</span></div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="card glass-heavy modal-content">
+            <h2 style="margin-bottom: 16px;">修改记录</h2>
+            <textarea id="edit-input" class="input-box" style="height: 120px;"></textarea>
+            <div id="edit-category-container" style="display: none;">
+                <p class="text-secondary" style="font-size: 0.85rem; margin-top: 16px; margin-bottom: 8px;">修改分类</p>
+                <div class="category-selector" id="edit-categories"></div>
+            </div>
+            <div class="modal-actions"><button class="btn btn-cancel" id="btn-cancel-edit">取消</button><button class="btn" id="btn-save-edit">保存</button></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cat-manage-modal">
+        <div class="card glass-heavy modal-content">
+            <h2 style="margin-bottom: 16px;">管理储蓄分类</h2>
+            <div id="cat-manage-list" style="max-height: 220px; overflow-y: auto; margin-bottom: 16px; border-radius: 12px; background: rgba(0,0,0,0.05); padding: 8px;"></div>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <input type="text" id="new-cat-icon" class="input-box" placeholder="图标✨" style="width: 30%; margin-top: 0; padding: 12px; text-align: center;">
+                <input type="text" id="new-cat-title" class="input-box" placeholder="新分类名" style="flex: 1; margin-top: 0; padding: 12px;">
+                <button class="btn-small" style="background: var(--primary-orange); color: white; border-radius: 12px; padding: 0 16px;" id="btn-add-cat">添加</button>
+            </div>
+            <div class="modal-actions"><button class="btn" style="width: 100%;" id="btn-close-cat">完成</button></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    // ==========================================
+    // 1. Psychological Quotes Engine
+    // ==========================================
+    const quotesData = {
+        gratitude: [
+            "💡 积极情绪产生拓宽行为 → 行为带来资源积累 → 资源提升未来的生存与幸福感。",
+            "💡 每次记录，都在训练大脑捕捉快乐。它能帮你慢慢打破人类天生的“负面偏好”。",
+            "💡 把注意力放在美好的事物上，并不是盲目乐观，而是在为心灵储蓄抗压的资本。",
+            "💡 哪怕只是今天按时下班、喝了一杯好喝的奶茶，这也是属于你的一个闪亮锚点。",
+            "💡 细细品味是一种跳出经历去欣赏的行为，它能阻止一味的享乐主义，增加感恩之心。",
+            "💡 心理学研究表明：记录三件好事，能在一周后显著提升个人的整体幸福感。",
+            "💡 你的大脑是一个储蓄罐。今天不存点快乐进去，明天拿什么来对抗焦虑？",
+            "💡 不要觉得微不足道就不值得记录。正是这些微光，组成了我们对抗虚无的星河。",
+            "💡 快乐不是天降的巨大惊喜，而是你主动从日常沙砾中淘出的小金子。",
+            "💡 今天发生的好事，写下来，它就会从转瞬即逝的情绪，变成你永恒的心理资源。"
+        ],
+        selfcare: [
+            "💡 积极情绪产生拓宽行为 → 行为带来资源积累 → 资源提升未来的生存与幸福感。",
+            "💡 照顾自己不是自私。当你主动为自己“充电”时，你正在积蓄能够抵御职业倦怠的长久能量。",
+            "💡 每天都在照顾他人的情绪，但请务必记住：你们自己的情绪健康同样，甚至更加重要。",
+            "💡 允许自己停下来喘口气。哪怕只是5分钟的闭目养神，也是对身心的极大释放。",
+            "💡 原谅自己今天犯的一个小错。自我接纳，是情绪逆行、打破恶性循环的第一步。",
+            "💡 感到心力交瘁不想动时，告诉自己“我只做5分钟”。行动会改变情绪，而不是等有情绪再行动。",
+            "💡 今天有没有好好吃饭？有没有喝水？这些看似不起眼的日常，构成了我们最底层的安全感。",
+            "💡 不要用别人的负面情绪来惩罚自己。下班后，给自己买束花或者吃顿好的吧。",
+            "💡 你的身体和心灵不是永动机。适时地按下暂停键，才能走得更远。",
+            "💡 给自己一点温柔的耐心，就像你对待那些遇到困难来求助的人一样。"
+        ],
+        archive: [
+            "💡 积极情绪产生拓宽行为 → 行为带来资源积累。这些锚点，就是你真实的心理资源。",
+            "💡 翻开这本手账，看看你不知不觉中积攒了多少能量。这些都是支撑你前行的真实力量。",
+            "💡 当你觉得眼前充满挑战时，回溯那些你曾经亲手存下的小小微光，它们会照亮来时路。",
+            "💡 这里是你情绪的避风港。每一次翻阅，都是在提醒自己：我其实拥有很多。",
+            "💡 你的每一个“顺意时刻”，每一次“自我充电”，都在不断重塑你的神经通路。",
+            "💡 看着逐渐填满的金币罐，这是一种可见的“掌控感”，它能用来对抗失控的反刍循环。",
+            "💡 记忆是会被时间冲淡的。幸好你记录了下来，让那些温暖的瞬间得以永存。",
+            "💡 哪怕是很久以前的一句谢谢，现在读起来，依然能让人嘴角上扬。",
+            "💡 你的生活并不是由巨大的波澜组成的，而是由这些被你珍藏的点滴微光交织而成。",
+            "💡 感谢曾经那个愿意记录下美好的自己，是 ta 给你现在的内心提供了源源不断的能量。"
+        ]
+    };
+
+    function changeQuote(tabId) {
+        const el = document.getElementById(`quote-${tabId}`);
+        if (!el) return;
+        const list = quotesData[tabId];
+        let newQuote = list[Math.floor(Math.random() * list.length)];
+        if(list.length > 1 && newQuote === el.innerText.replace('（点击更换 ↻）', '').trim()) {
+            newQuote = list[(list.indexOf(newQuote) + 1) % list.length];
+        }
+        el.style.opacity = 0;
+        setTimeout(() => {
+            el.innerText = newQuote;
+            el.style.opacity = 1;
+            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(5);
+        }, 200);
+    }
+
+    // ==========================================
+    // 2. Data State & Initialization
+    // ==========================================
+    function generateId() { return Math.random().toString(36).substr(2, 9); }
+    function getLocalDateString(date) { const tzOffset = date.getTimezoneOffset() * 60000; return new Date(date.getTime() - tzOffset).toISOString().split('T')[0]; }
+
+    const todayStr = getLocalDateString(new Date());
+    let state = { 
+        entries: [], currentCalDate: new Date(), selectedDateFilter: null, editingId: null,
+        categories: {
+            work: { id: 'work', title: '工作闪光', icon: '💡', dotClass: 'dot-work', color: 'var(--primary-blue)', bg: 'rgba(77, 172, 240, 0.15)' },
+            people: { id: 'people', title: '友善瞬间', icon: '☕️', dotClass: 'dot-people', color: 'var(--primary-green)', bg: 'rgba(107, 203, 119, 0.15)' },
+            life: { id: 'life', title: '日常确幸', icon: '🍃', dotClass: 'dot-life', color: 'var(--primary-orange)', bg: 'rgba(255, 179, 71, 0.15)' }
+        }
+    };
+
+    try {
+        const saved = localStorage.getItem('shiguangguan_data_anchor_final');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            state.entries = parsed.entries || [];
+            if(parsed.categories) state.categories = parsed.categories;
+        } else {
+            state.entries = [
+                { id: generateId(), type: 'gratitude', text: '帮忙解决了一个卡了很久的问题，同事顺手给我带了杯热咖啡。', category: 'work', date: todayStr, time: '14:30' },
+                { id: generateId(), type: 'selfcare', text: '中午给自己加了个大鸡腿。', category: 'self', date: todayStr, time: '12:00' }
+            ];
+            saveState();
+        }
+    } catch(e) { console.error("LS Error", e); }
+
+    function saveState() {
+        try { localStorage.setItem('shiguangguan_data_anchor_final', JSON.stringify({entries: state.entries, categories: state.categories})); } 
+        catch(e) { console.error("LS Save Error", e); }
+    }
+
+    // ==========================================
+    // 3. ✨ NEW: Interactive Breathing Guide Engine
+    // ==========================================
+    const breathCircle = document.getElementById('breathe-circle');
+    const breathDesc = document.getElementById('breathe-desc');
+    const btnStartBreathe = document.getElementById('btn-start-breathe');
+    const methodBtns = document.querySelectorAll('.breathe-method-btn');
+    
+    let isBreathing = false;
+    let breathInterval = null;
+    let breathTimeout = null;
+    let currentMethod = 'sigh'; 
+    
+    const breathSettings = {
+        sigh: {
+            desc: "斯坦福神经科学推荐：深吸气 → 短促补充吸气撑开肺泡 → 长呼气，能瞬间切断焦虑反应。",
+            phases: [
+                { text: "深吸气...", scale: 1.4, duration: 2500 },
+                { text: "再吸一口!", scale: 1.6, duration: 1000 },
+                { text: "长呼气...", scale: 1.0, duration: 4000 }
+            ],
+            autoLog: "进行了一次“生理性叹息”急救，把坏情绪呼出去了。"
+        },
+        box: {
+            desc: "海豹突击队战前技巧：吸气 4s → 憋气 4s → 呼气 4s → 憋气 4s。找回稳定的节奏感与专注力。",
+            phases: [
+                { text: "吸气...", scale: 1.5, duration: 4000 },
+                { text: "憋气稳住", scale: 1.5, duration: 4000 },
+                { text: "缓慢呼气", scale: 1.0, duration: 4000 },
+                { text: "憋气稳住", scale: 1.0, duration: 4000 }
+            ],
+            autoLog: "做了一组“箱式呼吸”，重新找回了专注的节奏。"
+        },
+        "478": {
+            desc: "天然神经镇静剂：吸气 4s → 憋气 7s → 呼气 8s。强行启动副交感神经，极度放松。",
+            phases: [
+                { text: "安静吸气", scale: 1.5, duration: 4000 },
+                { text: "憋气...", scale: 1.5, duration: 7000 },
+                { text: "彻底呼气", scale: 1.0, duration: 8000 }
+            ],
+            autoLog: "做了一组“4-7-8呼吸疗愈”，让急躁的心跳慢下来了。"
+        }
+    };
+
+    methodBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (isBreathing) stopBreathing();
+            methodBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentMethod = this.getAttribute('data-method');
+            breathDesc.innerText = breathSettings[currentMethod].desc;
+        });
+    });
+
+    function runBreathCycle(phases, phaseIndex) {
+        if (!isBreathing) return;
+        
+        const phase = phases[phaseIndex];
+        breathCircle.innerText = phase.text;
+        breathCircle.style.transitionDuration = `${phase.duration}ms`;
+        breathCircle.style.transform = `scale(${phase.scale})`;
+        
+        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(20);
+
+        breathTimeout = setTimeout(() => {
+            const nextIndex = (phaseIndex + 1) % phases.length;
+            runBreathCycle(phases, nextIndex);
+        }, phase.duration);
+    }
+
+    function startBreathing() {
+        isBreathing = true;
+        btnStartBreathe.innerText = "⏹️ 停止并记录";
+        btnStartBreathe.style.background = "var(--primary-pink)";
+        btnStartBreathe.style.color = "white";
+        
+        const phases = breathSettings[currentMethod].phases;
+        runBreathCycle(phases, 0);
+    }
+
+    function stopBreathing() {
+        isBreathing = false;
+        clearTimeout(breathTimeout);
+        
+        breathCircle.style.transitionDuration = "300ms";
+        breathCircle.style.transform = "scale(1)";
+        breathCircle.innerText = "准备";
+        
+        btnStartBreathe.innerText = "开始急救";
+        btnStartBreathe.style.background = "";
+        btnStartBreathe.style.color = "";
+        
+        const input = document.getElementById('selfcare-input');
+        if(!input.value.includes(breathSettings[currentMethod].autoLog)) {
+            input.value = breathSettings[currentMethod].autoLog + "\n" + input.value;
+            input.style.boxShadow = "0 0 15px rgba(255,107,107,0.5)";
+            setTimeout(() => { input.style.boxShadow = "none"; }, 1000);
+        }
+    }
+
+    btnStartBreathe.addEventListener('click', () => {
+        if (isBreathing) stopBreathing(); else startBreathing();
+    });
+
+    // ==========================================
+    // 4. Core Navigation & Layout
+    // ==========================================
+    function switchTab(tabId) {
+        if (isBreathing) stopBreathing(); 
+        
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('screen-' + tabId).classList.add('active');
+        document.getElementById('tab-' + tabId).classList.add('active');
+        
+        const header = document.getElementById('app-header');
+        if (tabId === 'gratitude') header.innerHTML = '⚓ 锚点';
+        else if (tabId === 'selfcare') header.innerHTML = '⚓ 锚点';
+        else if (tabId === 'archive') { header.innerHTML = '⚓ 锚点'; updateArchiveView(); }
+        
+        changeQuote(tabId);
+        document.getElementById('content-area').scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    // ==========================================
+    // 5. Category Management
+    // ==========================================
+    function renderCategoryChips() {
+        const gratContainer = document.getElementById('gratitude-categories');
+        const editContainer = document.getElementById('edit-categories');
+        if(!gratContainer || !editContainer) return;
+
+        let html = ''; let first = true;
+        for (const key in state.categories) {
+            const cat = state.categories[key]; const activeClass = first ? 'active' : '';
+            html += `<div class="chip ${activeClass}" data-cat="${cat.id}" style="--chip-color:${cat.color}; --chip-bg:${cat.bg};"><span>${cat.icon}</span> ${cat.title}</div>`;
+            first = false;
+        }
+        gratContainer.innerHTML = html;
+        
+        let editHtml = '';
+        for (const key in state.categories) {
+            const cat = state.categories[key];
+            editHtml += `<div class="chip" data-cat="${cat.id}" style="--chip-color:${cat.color}; --chip-bg:${cat.bg};"><span>${cat.icon}</span> ${cat.title}</div>`;
+        }
+        editContainer.innerHTML = editHtml;
+
+        gratContainer.querySelectorAll('.chip').forEach(c => {
+            c.addEventListener('click', function() {
+                gratContainer.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
+                this.classList.add('active');
+                if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
+            });
+        });
+        
+        editContainer.querySelectorAll('.chip').forEach(c => {
+            c.addEventListener('click', function() {
+                editContainer.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    }
+
+    function openCategoryManager() { renderCategoryList(); document.getElementById('cat-manage-modal').classList.add('active'); }
+    function closeCategoryManager() { document.getElementById('cat-manage-modal').classList.remove('active'); renderCategoryChips(); updateArchiveView(); }
+
+    function renderCategoryList() {
+        const list = document.getElementById('cat-manage-list');
+        list.innerHTML = ''; 
+        const catKeys = Object.keys(state.categories);
+        catKeys.forEach(key => {
+            const cat = state.categories[key]; const isLast = catKeys.length <= 1; 
+            
+            const row = document.createElement('div');
+            row.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--glass-bg-light); margin-bottom: 8px; border-radius: 12px;";
+            row.innerHTML = `<div style="display: flex; gap: 10px; align-items: center;"><span style="font-size: 1.3rem;">${cat.icon}</span><span style="font-weight: 600;">${cat.title}</span></div>`;
+            
+            if(!isLast) {
+                const delBtn = document.createElement('button');
+                delBtn.className = "btn-small btn-delete";
+                delBtn.style.cssText = "margin:0; padding: 6px 12px;";
+                delBtn.innerText = "删除";
+                
+                let catDelTimeout;
+                delBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (this.innerText === '删除') {
+                        this.innerText = '确认删除';
+                        this.style.background = 'var(--primary-pink)'; this.style.color = 'white';
+                        catDelTimeout = setTimeout(() => { if(this) { this.innerText = '删除'; this.style.background = ''; this.style.color = ''; } }, 3000);
+                    } else {
+                        clearTimeout(catDelTimeout);
+                        delete state.categories[cat.id];
+                        const fallbackKey = Object.keys(state.categories)[0];
+                        state.entries.forEach(entry => { if (entry.type === 'gratitude' && entry.category === cat.id) { entry.category = fallbackKey; } });
+                        saveState(); renderCategoryList();
+                    }
+                });
+                row.appendChild(delBtn);
+            }
+            list.appendChild(row);
+        });
+    }
+
+    function addNewCategory() {
+        const iconInput = document.getElementById('new-cat-icon'); const titleInput = document.getElementById('new-cat-title');
+        const icon = iconInput.value.trim() || '✨'; const title = titleInput.value.trim();
+        if (!title) { titleInput.animate([{ transform: 'translateX(-5px)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(0)' }], { duration: 200 }); return; }
+        const newId = 'cat_' + generateId();
+        state.categories[newId] = { id: newId, title: title, icon: icon, dotClass: 'dot-life', color: 'var(--primary-orange)', bg: 'rgba(255, 179, 71, 0.15)' };
+        saveState(); renderCategoryList(); iconInput.value = ''; titleInput.value = '';
+    }
+
+    // ==========================================
+    // 6. Jar Visuals & Submission Animations
+    // ==========================================
+    function renderJarCoins() {
+        const container = document.getElementById('dynamic-jar-coins');
+        if (!container) return;
+        const coinCount = state.entries.filter(e => e.type === 'gratitude').length;
+        const visualCoins = Math.min(coinCount, 15); 
+        let html = '';
+        for (let i = 0; i < visualCoins; i++) {
+            const layer = Math.floor(i / 3);
+            const baseX = 65 + (i % 3) * 16 + (Math.random() * 8 - 4);
+            const baseY = 142 - (layer * 11) + (Math.random() * 4 - 2);
+            const size = 32 + Math.random() * 6;
+            const rot = Math.random() * 90 - 45;
+            html += `<use href="#icon-clover-coin" x="${baseX}" y="${baseY}" width="${size}" height="${size}" transform="rotate(${rot} ${baseX+size/2} ${baseY+size/2})" />`;
+        }
+        container.innerHTML = html;
+    }
+
+    function explodeParticles(x, y, type) {
+        const container = document.body;
+        const colors = type === 'gratitude' ? ['#FFE793', '#FDB933', '#FFF59D', '#E6951C'] : ['#FF6B6B', '#FFB347', '#FF5252', '#FFF'];
+        for (let i = 0; i < 40; i++) {
+            const isStar = Math.random() > 0.6;
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            if (isStar) {
+                particle.innerHTML = '<svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M12 2L14.4 9.6H22L15.8 14.1L18.2 21.7L12 17.2L5.8 21.7L8.2 14.1L2 9.6H9.6L12 2Z" fill="currentColor"/></svg>';
+                particle.style.width = (Math.random() * 12 + 10) + 'px';
+            } else {
+                particle.style.width = (Math.random() * 8 + 5) + 'px';
+                particle.style.borderRadius = '50%';
+            }
+            particle.style.height = particle.style.width;
+            particle.style.color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.background = isStar ? 'transparent' : particle.style.color;
+            particle.style.left = x + 'px'; particle.style.top = y + 'px';
+            container.appendChild(particle);
+            const angle = Math.random() * Math.PI * 2; const velocity = 50 + Math.random() * 130;
+            particle.animate([
+                { transform: 'translate(-50%, -50%) scale(1) rotate(0deg)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${Math.cos(angle)*velocity}px), calc(-50% + ${Math.sin(angle)*velocity}px)) scale(0) rotate(${Math.random()*360}deg)`, opacity: 0 }
+            ], { duration: 800 + Math.random() * 600, easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)' }).onfinish = () => particle.remove();
+        }
+    }
+
+    function addEntryAnimated(formType, event) {
+        const input = document.getElementById(formType + '-input');
+        const text = input.value.trim();
+        const btn = document.getElementById(formType === 'gratitude' ? 'btn-gratitude' : 'btn-selfcare-submit');
+        
+        if (!text) { input.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], { duration: 300 }); return; }
+        if (btn.classList.contains('animating')) return;
+        btn.classList.add('animating');
+
+        const activeChip = document.getElementById(formType + '-categories').querySelector('.chip.active');
+        const now = new Date();
+        
+        state.entries.unshift({
+            id: generateId(),
+            type: formType, text: text,
+            category: activeChip ? activeChip.getAttribute('data-cat') : 'self',
+            date: getLocalDateString(now),
+            time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0')
+        });
+        saveState();
+        input.value = '';
+
+        const btnRect = btn.getBoundingClientRect();
+        const targetJarContainer = document.getElementById(formType + '-jar-target');
+        const jarRect = targetJarContainer.getBoundingClientRect();
+        const actualJar = document.getElementById(formType + '-jar');
+        const startX = btnRect.left + btnRect.width / 2; const startY = btnRect.top + btnRect.height / 2;
+        const endX = jarRect.left + jarRect.width / 2; const endY = jarRect.top + 60; 
+
+        const flyer = document.createElement('div');
+        flyer.className = 'flying-item';
+        flyer.innerHTML = formType === 'gratitude' ? '<svg class="icon-clover-coin"><use href="#icon-clover-coin"></use></svg>' : '<div style="font-size:40px; filter: drop-shadow(0 5px 10px rgba(255,107,107,0.4));">🔋</div>';
+        flyer.style.left = startX + 'px'; flyer.style.top = startY + 'px';
+        document.body.appendChild(flyer);
+
+        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(15);
+        btn.innerHTML = '传递中...';
+
+        flyer.animate([
+            { transform: `translate(-50%, -50%) scale(0.5) rotate(0deg)` },
+            { transform: `translate(calc(-50% + ${(endX - startX)/2}px), calc(-50% + ${endY - startY - 120}px)) scale(1.6) rotate(180deg)` },
+            { transform: `translate(calc(-50% + ${endX - startX}px), calc(-50% + ${endY - startY}px)) scale(0.35) rotate(360deg)` }
+        ], { duration: 700, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' }).onfinish = () => {
+            flyer.remove();
+            actualJar.classList.remove('bounce'); void actualJar.offsetWidth; actualJar.classList.add('bounce');
+            explodeParticles(endX, endY, formType);
+            if (formType === 'gratitude') renderJarCoins();
+            if (window.navigator && window.navigator.vibrate) window.navigator.vibrate([30, 40, 30]);
+
+            btn.innerHTML = formType === 'gratitude' ? '✨ 幸运入罐 <svg class="icon-clover-coin"><use href="#icon-clover-coin"></use></svg>' : '🔋 充电完成';
+            btn.style.background = '#6BCB77'; btn.style.color = '#FFF';
+            
+            setTimeout(() => { 
+                btn.classList.remove('animating');
+                btn.innerHTML = formType === 'gratitude' ? '存入一枚金币 <svg class="icon-clover-coin"><use href="#icon-clover-coin"></use></svg>' : '为自己充格电 🔋';
+                btn.style.background = ''; btn.style.color = '';
+            }, 2000);
+        };
+    }
+
+    // ==========================================
+    // 7. Archive & Edit System
+    // ==========================================
+    function openEditModal(id) {
+        const entry = state.entries.find(e => e.id === id);
+        if(!entry) return;
+        state.editingId = id;
+        document.getElementById('edit-input').value = entry.text;
+        const catContainer = document.getElementById('edit-category-container');
+        if (entry.type === 'gratitude') {
+            catContainer.style.display = 'block';
+            document.querySelectorAll('#edit-categories .chip').forEach(c => {
+                c.classList.remove('active');
+                if(c.getAttribute('data-cat') === entry.category) c.classList.add('active');
+            });
+        } else { catContainer.style.display = 'none'; }
+        document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeEditModal() { document.getElementById('edit-modal').classList.remove('active'); state.editingId = null; }
+
+    function saveEdit() {
+        const text = document.getElementById('edit-input').value.trim();
+        if(!text) { closeEditModal(); return; }
+        const entryIndex = state.entries.findIndex(e => e.id === state.editingId);
+        if(entryIndex !== -1) {
+            state.entries[entryIndex].text = text;
+            if(state.entries[entryIndex].type === 'gratitude') {
+                const activeChip = document.querySelector('#edit-categories .chip.active');
+                if(activeChip) state.entries[entryIndex].category = activeChip.getAttribute('data-cat');
+            }
+            saveState(); updateArchiveView();
+        }
+        closeEditModal();
+    }
+
+    function updateArchiveView() {
+        document.getElementById('total-coins').innerText = state.entries.filter(e => e.type === 'gratitude').length;
+        document.getElementById('total-charges').innerText = state.entries.filter(e => e.type === 'selfcare').length;
+        document.getElementById('total-days').innerText = new Set(state.entries.map(e => e.date)).size;
+        renderCalendar(); renderList();
+    }
+
+    function changeMonth(offset) { state.currentCalDate.setMonth(state.currentCalDate.getMonth() + offset); renderCalendar(); }
+
+    function renderCalendar() {
+        const year = state.currentCalDate.getFullYear(); const month = state.currentCalDate.getMonth();
+        document.getElementById('cal-month-year').innerText = `${year}年${month + 1}月`;
+        const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const entryDatesThisMonth = new Set(state.entries.filter(e => e.date.startsWith(`${year}-${(month+1).toString().padStart(2, '0')}`)).map(e => parseInt(e.date.split('-')[2])));
+        const grid = document.getElementById('calendar-days'); grid.innerHTML = '';
+        for (let i = 0; i < firstDay; i++) grid.innerHTML += `<div class="calendar-day empty"></div>`;
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${(month+1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            const isSelected = state.selectedDateFilter === dateStr;
+            const hasEntry = entryDatesThisMonth.has(day);
+            const cell = document.createElement('div');
+            cell.className = `calendar-day ${hasEntry ? 'has-entry' : ''} ${isSelected ? 'selected' : ''}`;
+            cell.innerText = day;
+            cell.addEventListener('click', function() {
+                state.selectedDateFilter = state.selectedDateFilter === dateStr ? null : dateStr;
+                if (state.selectedDateFilter) state.currentCalDate = new Date(dateStr);
+                renderCalendar(); renderList();
+                if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
+            });
+            grid.appendChild(cell);
+        }
+    }
+
+    function clearDateFilter() { state.selectedDateFilter = null; renderCalendar(); renderList(); }
+
+    function formatDisplayDateStr(dateStr) {
+        const d = new Date(dateStr); const today = new Date(todayStr);
+        const diffTime = Math.abs(today - d); const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        if (dateStr === todayStr) return '今天';
+        if (diffDays === 1 && d < today) return '昨天';
+        return `${d.getMonth() + 1}月${d.getDate()}日`;
+    }
+
+    function renderList() {
+        const container = document.getElementById('archive-list-content'); const btnShowAll = document.getElementById('btn-show-all');
+        container.innerHTML = '';
+        let displayEntries = state.entries;
+        if (state.selectedDateFilter) { displayEntries = state.entries.filter(e => e.date === state.selectedDateFilter); btnShowAll.style.display = 'block'; } 
+        else { btnShowAll.style.display = 'none'; }
+        
+        if (displayEntries.length === 0) {
+            container.innerHTML = `<div class="empty-state"><div class="empty-icon">🍃</div><div>${state.selectedDateFilter ? '这一天没有记录哦' : '你还没有存下锚点哦，<br>去记录第一份幸运吧 ✨'}</div></div>`; return;
+        }
+        
+        const grouped = {}; displayEntries.forEach(entry => { if (!grouped[entry.date]) grouped[entry.date] = []; grouped[entry.date].push(entry); });
+        Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+            const dateHeader = document.createElement('div'); dateHeader.className = 'date-divider'; dateHeader.innerText = formatDisplayDateStr(date);
+            container.appendChild(dateHeader);
+            
+            grouped[date].forEach(entry => {
+                const icon = entry.type === 'gratitude' ? '<svg class="icon-clover-coin"><use href="#icon-clover-coin"></use></svg>' : '🔋';
+                const catInfo = entry.type === 'gratitude' ? (state.categories[entry.category] || state.categories[Object.keys(state.categories)[0]]) : { title: '自我充电', dotClass: 'dot-self' }; 
+                
+                const item = document.createElement('div'); item.className = 'entry-item';
+                item.innerHTML = `
+                    <div class="entry-main">
+                        <div class="entry-icon">${icon}</div>
+                        <div class="entry-content">
+                            <div>${entry.text}</div>
+                            <div class="entry-meta">
+                                <div class="entry-cat"><div class="dot ${catInfo.dotClass}"></div>${catInfo.title}</div>
+                                <div>${entry.time || ''}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="entry-actions"></div>
+                `;
+                
+                const actionDiv = item.querySelector('.entry-actions');
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn-small btn-edit'; editBtn.innerText = '编辑';
+                editBtn.addEventListener('click', function(e) { e.stopPropagation(); openEditModal(entry.id); });
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn-small btn-delete'; delBtn.innerText = '删除';
+                
+                let delTimeout;
+                delBtn.addEventListener('click', function(e) { 
+                    e.stopPropagation(); 
+                    if (this.innerText === '删除') {
+                        this.innerText = '确认删除';
+                        this.style.background = 'var(--primary-pink)'; this.style.color = 'white';
+                        delTimeout = setTimeout(() => { if(this) { this.innerText = '删除'; this.style.background = ''; this.style.color = ''; } }, 3000);
+                    } else {
+                        clearTimeout(delTimeout);
+                        state.entries = state.entries.filter(e => e.id !== entry.id);
+                        saveState(); updateArchiveView(); renderJarCoins();
+                        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(10);
+                    }
+                });
+                
+                actionDiv.appendChild(editBtn);
+                actionDiv.appendChild(delBtn);
+                container.appendChild(item);
+            });
+        });
+    }
+
+    // ==========================================
+    // 8. Event Listeners & Bootstrap
+    // ==========================================
+    document.getElementById('tab-gratitude').addEventListener('click', () => switchTab('gratitude'));
+    document.getElementById('tab-selfcare').addEventListener('click', () => switchTab('selfcare'));
+    document.getElementById('tab-archive').addEventListener('click', () => switchTab('archive'));
+    
+    document.getElementById('btn-manage-cat').addEventListener('click', openCategoryManager);
+    document.getElementById('btn-close-cat').addEventListener('click', closeCategoryManager);
+    document.getElementById('btn-add-cat').addEventListener('click', addNewCategory);
+    
+    document.getElementById('quote-wrap-gratitude').addEventListener('click', () => changeQuote('gratitude'));
+    document.getElementById('quote-wrap-selfcare').addEventListener('click', () => changeQuote('selfcare'));
+    document.getElementById('quote-wrap-archive').addEventListener('click', () => changeQuote('archive'));
+    
+    document.getElementById('btn-prev-month').addEventListener('click', () => changeMonth(-1));
+    document.getElementById('btn-next-month').addEventListener('click', () => changeMonth(1));
+    document.getElementById('btn-show-all').addEventListener('click', () => { clearDateFilter(); });
+    
+    document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
+    document.getElementById('btn-save-edit').addEventListener('click', saveEdit);
+    
+    document.getElementById('btn-gratitude').addEventListener('click', (e) => addEntryAnimated('gratitude', e));
+    document.getElementById('btn-selfcare-submit').addEventListener('click', (e) => addEntryAnimated('selfcare', e));
+
+    // Initialize System
+    renderCategoryChips();
+    renderJarCoins();
+    changeQuote('gratitude');
+
+});
+</script>
+</body>
+</html>
